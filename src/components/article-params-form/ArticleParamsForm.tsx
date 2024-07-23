@@ -16,6 +16,7 @@ import {
 	backgroundColors,
 	contentWidthArr,
 	defaultArticleState,
+    ArticleStateType,
 	fontColors,
 	fontFamilyOptions,
 	fontSizeOptions,
@@ -43,30 +44,12 @@ export const ArticleParamsForm = ({
 		setIsMenuOpen((prevOpen) => !prevOpen);
 	};
 
-    // обработчик изменения названия шрифта
-	const setFontFamily = (value: OptionType) => {
-		setState({ ...state, fontFamilyOption: value });
-	};
-    
-	// обработчик изменения размера шрифта
-	const setFontSize = (value: OptionType) => {
-		setState({ ...state, fontSizeOption: value });
-	};
-    
-	// обработчик изменения цвета шрифта
-	const setFontColor = (value: OptionType) => {
-		setState({ ...state, fontColor: value });
-	};
-    
-	// обработчик изменения цвета фона
-	const setBackgroundColor = (value: OptionType) => {
-		setState({ ...state, backgroundColor: value });
-	};
-    
-	// обработчик изменения ширины отображения контента
-	const setContentWidth = (value: OptionType) => {
-		setState({ ...state, contentWidth: value });
-	};
+    // общий обработчик
+    const handleOnChange = (field: keyof ArticleStateType) => {
+        return (value: OptionType) => {
+          setState((prevState) => ({ ...prevState, [field]: value }));
+        };
+      };
 
 	const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -75,69 +58,70 @@ export const ArticleParamsForm = ({
 		onClose: toggleMenu,
 		rootRef: formRef,
 	});
+
     // Сборка формы
-	return (
-		<>
-			<ArrowButton
-				onClick={() => !isMenuOpen && toggleMenu()}
-				isOpen={isMenuOpen}
-			/>
-			<aside
-				className={clsx(styles.container, {
-					[styles.container_open]: isMenuOpen,
-				})}>
-				<form
-					className={styles.form}
-					ref={formRef}
-					onSubmit={(e: FormEvent) => {
-						e.preventDefault();
-						applyStyles();
-					}}>
-					<Text as={'h2'} size={31} weight={800} uppercase={true}>
-						Задайте параметры
-					</Text>
-					<Select
-						selected={state.fontFamilyOption}
-						options={fontFamilyOptions}
-						placeholder='Выберите шрифт'
-						title='шрифт'
-						onChange={setFontFamily}
-					/>
-					<RadioGroup
-						name='fontSize'
-						options={fontSizeOptions}
-						selected={state.fontSizeOption}
-						title='размер шрифта'
-						onChange={setFontSize}
-					/>
-					<Select
-						selected={state.fontColor}
-						options={fontColors}
-						placeholder='Выберите цвет'
-						title='цвет шрифта'
-						onChange={setFontColor}
-					/>
-					<Separator />
-					<Select
-						selected={state.backgroundColor}
-						options={backgroundColors}
-						placeholder='Выберите цвет'
-						title='цвет фона'
-						onChange={setBackgroundColor}
-					/>
-					<Select
-						selected={state.contentWidth}
-						options={contentWidthArr}
-						placeholder='Выберите ширину'
-						title='ширина контента'
-						onChange={setContentWidth}
-					/>
-					<div className={styles.bottomContainer}>
-						<Button title='Сбросить' type='reset' onClick={resetStyles} />
-						<Button title='Применить' type='submit' />
-					</div>
-				</form>
-			</aside>
-		</>
-	);
+    return (
+        <>
+            <ArrowButton
+                onClick={() => !isMenuOpen && toggleMenu()}
+                isOpen={isMenuOpen}
+            />
+            <aside
+                className={clsx(styles.container, {
+                    [styles.container_open]: isMenuOpen,
+                })}>
+                <form
+                    className={styles.form}
+                    ref={formRef}
+                    onSubmit={(e: FormEvent) => {
+                        e.preventDefault();
+                        applyStyles();
+                    }}>
+                    <Text as={'h2'} size={31} weight={800} uppercase={true}>
+                        Задайте параметры
+                    </Text>
+                    <Select
+                        title={'шрифт'}
+                        onChange={handleOnChange('fontFamilyOption')}
+                        selected={state.fontFamilyOption}
+                        options={fontFamilyOptions}
+                        placeholder='Выберите шрифт'
+                    />
+                    <RadioGroup
+                        name='fontSize'
+                        title='размер шрифта'
+                        onChange={handleOnChange('fontSizeOption')}
+                        selected={state.fontSizeOption}
+                        options={fontSizeOptions}
+                    />
+                    <Select
+                        title='цвет шрифта'
+                        onChange={handleOnChange('fontColor')}
+                        selected={state.fontColor}
+                        options={fontColors}
+                        placeholder='Выберите цвет'
+                    />
+                    <Separator />
+                    <Select
+                        title='цвет фона'
+                        onChange={handleOnChange('backgroundColor')}
+                        selected={state.backgroundColor}
+                        options={backgroundColors}
+                        placeholder='Выберите цвет'
+                    />
+                    <Select
+                        title='ширина контента'
+                        onChange={handleOnChange('contentWidth')}
+                        selected={state.contentWidth}
+                        options={contentWidthArr}
+                        placeholder='Выберите ширину'
+                    />
+                    <div className={styles.bottomContainer}>
+                        <Button title='Сбросить' type='reset' onClick={resetStyles} />
+                        <Button title='Применить' type='submit' />
+                    </div>
+                </form>
+            </aside>
+        </>
+    );
 };
