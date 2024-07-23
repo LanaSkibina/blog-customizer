@@ -19,19 +19,7 @@ const root = createRoot(domNode);
 
 const App = () => {
 	const [articleState, setArticleState] = useState(defaultArticleState);
-	const [formState, setFormState] = useState(defaultArticleState);
-    
-	// для дефлотных
-	const resetFormState = () => {
-		setFormState(defaultArticleState);
-		setArticleState(defaultArticleState);
-	};
-    
-	// для кастомных настроек
-	const applyState = () => {
-		setArticleState(formState);
-	};
-    
+	
 	// Отрисовка компонентов приложения
 	return (
 		<main
@@ -46,10 +34,8 @@ const App = () => {
 				} as CSSProperties
 			}>
 			<ArticleParamsForm
-				state={formState}
-				setState={setFormState}
-				resetStyles={resetFormState}
-				applyStyles={applyState}
+				articleState={articleState}
+				setArticleState={setArticleState}
 			/>
 			<Article />
 		</main>

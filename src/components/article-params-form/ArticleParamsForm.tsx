@@ -1,5 +1,5 @@
 // Импорт компонентов React
-import { FormEvent, useRef, useState } from 'react';
+import { SyntheticEvent, useRef, useState } from 'react';
 import clsx from 'clsx';
 
 // Импорт стилей
@@ -16,7 +16,6 @@ import {
 	backgroundColors,
 	contentWidthArr,
 	defaultArticleState,
-    ArticleStateType,
 	fontColors,
 	fontFamilyOptions,
 	fontSizeOptions,
@@ -25,19 +24,25 @@ import { RadioGroup } from '../radio-group';
 import { Separator } from '../separator';
 import { useClose } from './hooks/useCloseForm';
 
+
 type ArticleParamsFormProps = {
-	state: typeof defaultArticleState;
-	setState: React.Dispatch<React.SetStateAction<typeof defaultArticleState>>;
-	resetStyles: () => void; // сброс параметров формы до дефолтных
-	applyStyles: () => void; // применить выбранные параметры формы
+	articleState: TArticleState;
+	setArticleState: (articleState: ArticleParamsFormProps['articleState']) => void;
+};
+
+type TArticleState = {
+	fontFamilyOption: OptionType;
+	fontColor: OptionType;
+	backgroundColor: OptionType;
+	contentWidth: OptionType;
+	fontSizeOption: OptionType;
 };
 
 export const ArticleParamsForm = ({
-	state,
-	setState,
-	resetStyles,
-	applyStyles,
+	articleState, 
+    setArticleState
 }: ArticleParamsFormProps) => {
+    const [formState, formValue] = useState(defaultArticleState);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	const toggleMenu = () => {
@@ -45,11 +50,22 @@ export const ArticleParamsForm = ({
 	};
 
     // общий обработчик
-    const handleOnChange = (field: keyof ArticleStateType) => {
-        return (value: OptionType) => {
-          setState((prevState) => ({ ...prevState, [field]: value }));
-        };
-      };
+    const handleChange = (type: keyof typeof articleState, value: OptionType) => {
+		formValue((windowFormState) => ({
+			...windowFormState,
+			[type]: value,
+		}));
+	};
+
+    const handleReset = () => {
+		formValue(defaultArticleState);
+		setArticleState(defaultArticleState);
+	};
+
+	const handleFormSubmit = (evt: SyntheticEvent) => {
+		evt.preventDefault();
+		setArticleState(formState);
+	};
 
 	const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -73,51 +89,48 @@ export const ArticleParamsForm = ({
                 <form
                     className={styles.form}
                     ref={formRef}
-                    onSubmit={(e: FormEvent) => {
-                        e.preventDefault();
-                        applyStyles();
-                    }}>
+                    onSubmit={handleFormSubmit}>
                     <Text as={'h2'} size={31} weight={800} uppercase={true}>
                         Задайте параметры
                     </Text>
                     <Select
                         title={'шрифт'}
-                        onChange={handleOnChange('fontFamilyOption')}
-                        selected={state.fontFamilyOption}
+                        onChange={(font) => handleChange('fontFamilyOption', font)}
+                        selected={formState.fontFamilyOption}
                         options={fontFamilyOptions}
                         placeholder='Выберите шрифт'
                     />
                     <RadioGroup
                         name='fontSize'
                         title='размер шрифта'
-                        onChange={handleOnChange('fontSizeOption')}
-                        selected={state.fontSizeOption}
+                        onChange={(fontSize) => handleChange('fontSizeOption', fontSize)}
+                        selected={formState.fontSizeOption}
                         options={fontSizeOptions}
                     />
                     <Select
                         title='цвет шрифта'
-                        onChange={handleOnChange('fontColor')}
-                        selected={state.fontColor}
+                        onChange={(fontColor) => handleChange('fontColor', fontColor)}
+                        selected={formState.fontColor}	
                         options={fontColors}
                         placeholder='Выберите цвет'
                     />
                     <Separator />
                     <Select
                         title='цвет фона'
-                        onChange={handleOnChange('backgroundColor')}
-                        selected={state.backgroundColor}
+                        onChange={(backgroundColor) => handleChange('backgroundColor', backgroundColor)}
+                        selected={formState.backgroundColor}	
                         options={backgroundColors}
                         placeholder='Выберите цвет'
                     />
                     <Select
                         title='ширина контента'
-                        onChange={handleOnChange('contentWidth')}
-                        selected={state.contentWidth}
+                        onChange={(contentWidth) => handleChange('contentWidth', contentWidth)}
+                        selected={formState.contentWidth}	
                         options={contentWidthArr}
                         placeholder='Выберите ширину'
                     />
                     <div className={styles.bottomContainer}>
-                        <Button title='Сбросить' type='reset' onClick={resetStyles} />
+                        <Button title='Сбросить' type='reset' onClick={handleReset} />
                         <Button title='Применить' type='submit' />
                     </div>
                 </form>
